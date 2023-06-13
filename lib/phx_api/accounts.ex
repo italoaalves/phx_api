@@ -38,6 +38,24 @@ defmodule PhxApi.Accounts do
   def get_account!(id), do: Repo.get!(Account, id)
 
   @doc """
+  Gets a single account.any()
+
+  Returns 'nil' if the Account does not exist.any()
+
+  ## Examples
+    iex> get_account_by_email(test@email.com)
+    %Account{}
+
+    iex> get_account_byemail(no_account@email.com)
+    nil
+  """
+  def get_account_by_email(email) do
+    Account
+    |> where(email: ^email)
+    |> Repo.one()
+  end
+
+  @doc """
   Creates a account.
 
   ## Examples
