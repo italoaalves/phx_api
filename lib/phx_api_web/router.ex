@@ -18,10 +18,19 @@ defmodule PhxApiWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug PhxApiWeb.Auth.Pipeline
+  end
+
   scope "/api", PhxApiWeb do
     pipe_through :api
     get "/", DefaultController, :index
     post "/accounts", AccountController, :create
     post "/accounts/sign_in", AccountController, :sign_in
+  end
+
+  scope "/api", PhxApiWeb do
+    pipe_through [:api, :auth]
+    get "/accounts/:id", AccountController, :show
   end
 end
