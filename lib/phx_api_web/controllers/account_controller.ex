@@ -2,7 +2,7 @@ defmodule PhxApiWeb.AccountController do
   use PhxApiWeb, :controller
 
   alias PhxApi.Accounts
-  alias PhxApi.Accounts.Account
+  alias PhxApi.{Accounts, Accounts.Account, Users, Users.User}
 
   action_fallback PhxApiWeb.FallbackController
 
@@ -12,11 +12,13 @@ defmodule PhxApiWeb.AccountController do
   end
 
   def create(conn, %{"account" => account_params}) do
-    with {:ok, %Account{} = account} <- Accounts.create_account(account_params) do
+    with {:ok, %Account{} = account} <- Accounts.create_account(account_params),
+      {:ok, token, _claims} <- PhxApiWeb.Auth.Guardian.encode_and_sign(account),
+      {:ok, %User{} = user} <- Users.create_user(account, account_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/accounts/#{account}")
-      |> render(:show, account: account)
+      |> render(:account_token, account: account, token: token)
     end
   end
 
