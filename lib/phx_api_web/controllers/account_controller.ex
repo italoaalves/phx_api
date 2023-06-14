@@ -1,7 +1,7 @@
 defmodule PhxApiWeb.AccountController do
   use PhxApiWeb, :controller
 
-  alias PhxApiWeb.{Auth.Guardian, Auth.ErrorReponse}
+  alias PhxApiWeb.{Auth.Guardian, Auth.ErrorResponse}
   alias PhxApi.{Accounts, Accounts.Account, Users, Users.User}
 
   plug :is_authorized_account when action in [:update, :delete]
@@ -14,7 +14,7 @@ defmodule PhxApiWeb.AccountController do
     if conn.assigns.account.id == account.id do
       conn
     else
-      raise ErrorReponse.Forbidden, message: "You don't have rights to do that"
+      raise ErrorResponse.Forbidden, message: "You don't have rights to do that"
     end
   end
 
@@ -41,7 +41,15 @@ defmodule PhxApiWeb.AccountController do
         |> Plug.Conn.put_session(:account_id, account.id)
         |> put_status(:ok)
         |> render(:account_token, account: account, token: token)
-      {:error, :unauthorized} -> raise ErrorReponse.Unauthorized, message: "Incorrect credentials."
+      {:error, :unauthorized} -> raise ErrorResponse.Unauthorized, message: "Incorrect credentials."
+    end
+  end
+
+  def refresh_session(conn, %{}) do
+    old_token = Guardian.Plug.current_token(conn)
+    case Guardian.decode_and_verify(old_token) do
+      {:ok, claims} ->
+        {:error, _reason} -> raise ErrorResponse
     end
   end
 
