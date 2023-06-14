@@ -35,6 +35,7 @@ defmodule PhxApiWeb.Router do
     pipe_through [:api, :auth]
     get "/accounts/:id", AccountController, :show
     delete "/accounts/session", AccountController, :sign_out
+    get "/accounts/session/refresh", AccountController, :refresh_session
     put "/accounts/", AccountController, :update
   end
 end
