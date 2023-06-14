@@ -16,10 +16,12 @@ defmodule PhxApiWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   pipeline :auth do
     plug PhxApiWeb.Auth.Pipeline
+    plug PhxApiWeb.Auth.SetAccount
   end
 
   scope "/api", PhxApiWeb do

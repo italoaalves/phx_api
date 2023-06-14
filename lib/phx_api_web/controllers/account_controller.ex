@@ -1,7 +1,7 @@
 defmodule PhxApiWeb.AccountController do
   use PhxApiWeb, :controller
 
-  alias PhxApiWeb.{Auth.Guardian, Auth.ErrorResponse}
+  alias PhxApiWeb.{Auth.Guardian, Auth.ErrorReponse}
   alias PhxApi.{Accounts, Accounts.Account, Users, Users.User}
 
   action_fallback PhxApiWeb.FallbackController
@@ -14,7 +14,7 @@ defmodule PhxApiWeb.AccountController do
   def create(conn, %{"account" => account_params}) do
     with {:ok, %Account{} = account} <- Accounts.create_account(account_params),
       {:ok, token, _claims} <- Guardian.encode_and_sign(account),
-      {:ok, %User{} = user} <- Users.create_user(account, account_params) do
+      {:ok, %User{} = _user} <- Users.create_user(account, account_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/accounts/#{account}")
@@ -26,9 +26,10 @@ defmodule PhxApiWeb.AccountController do
     case Guardian.authenticate(email, hash_password) do
       {:ok, account, token} ->
         conn
+        |> Plug.Conn.put_session(:account_id, account.id)
         |> put_status(:ok)
         |> render(:account_token, account: account, token: token)
-      {:error, :unauthorized} -> raise ErrorResponse.Unauthorized, message: "Incorrect credentials."
+      {:error, :unauthorized} -> raise ErrorReponse.Unauthorized, message: "Incorrect credentials."
     end
   end
 
