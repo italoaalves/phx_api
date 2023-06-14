@@ -28,12 +28,13 @@ defmodule PhxApiWeb.Router do
     pipe_through :api
     get "/", DefaultController, :index
     post "/accounts", AccountController, :create
-    post "/accounts/sign_in", AccountController, :sign_in
+    post "/accounts/session", AccountController, :sign_in
   end
 
   scope "/api", PhxApiWeb do
     pipe_through [:api, :auth]
     get "/accounts/:id", AccountController, :show
+    delete "/accounts/session", AccountController, :sign_out
     put "/accounts/", AccountController, :update
   end
 end
