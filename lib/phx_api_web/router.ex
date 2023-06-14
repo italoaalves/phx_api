@@ -34,5 +34,6 @@ defmodule PhxApiWeb.Router do
   scope "/api", PhxApiWeb do
     pipe_through [:api, :auth]
     get "/accounts/:id", AccountController, :show
+    put "/accounts/", AccountController, :update
   end
 end

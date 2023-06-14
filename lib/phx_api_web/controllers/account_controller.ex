@@ -4,7 +4,19 @@ defmodule PhxApiWeb.AccountController do
   alias PhxApiWeb.{Auth.Guardian, Auth.ErrorReponse}
   alias PhxApi.{Accounts, Accounts.Account, Users, Users.User}
 
+  plug :is_authorized_account when action in [:update, :delete]
+
   action_fallback PhxApiWeb.FallbackController
+
+  defp is_authorized_account(conn, _options) do
+    %{params: %{"account" => params}} = conn
+    account = Accounts.get_account!(params["id"])
+    if conn.assigns.account.id == account.id do
+      conn
+    else
+      raise ErrorReponse.Forbidden, message: "You don't have rights to do that"
+    end
+  end
 
   def index(conn, _params) do
     accounts = Accounts.list_accounts()
@@ -38,8 +50,8 @@ defmodule PhxApiWeb.AccountController do
     render(conn, :show, account: account)
   end
 
-  def update(conn, %{"id" => id, "account" => account_params}) do
-    account = Accounts.get_account!(id)
+  def update(conn, %{"account" => account_params}) do
+    account = Accounts.get_account!(account_params["id"])
 
     with {:ok, %Account{} = account} <- Accounts.update_account(account, account_params) do
       render(conn, :show, account: account)
