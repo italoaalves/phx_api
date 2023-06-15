@@ -55,6 +55,13 @@ defmodule PhxApi.Accounts do
     |> Repo.one()
   end
 
+  def get_full_account(id) do
+    Account
+    |> where(id: ^id)
+    |> preload([:user])
+    |> Repo.one()
+  end
+
   @doc """
   Creates a account.
 

@@ -1,6 +1,6 @@
 defmodule PhxApiWeb.Auth.SetAccount do
   import Plug.Conn
-  alias PhxApiWeb.Auth.ErrorReponse
+  alias PhxApiWeb.Auth.ErrorResponse
   alias PhxApi.Accounts
 
   def init(_options) do
@@ -17,7 +17,7 @@ defmodule PhxApiWeb.Auth.SetAccount do
   defp assign_account(conn) do
     account_id = get_session(conn, :account_id)
 
-    if account_id == nil, do: raise ErrorReponse.Unauthorized
+    if account_id == nil, do: raise ErrorResponse.Unauthorized
 
     account = Accounts.get_account!(account_id)
 
