@@ -37,5 +37,6 @@ defmodule PhxApiWeb.Router do
     delete "/accounts/session", AccountController, :sign_out
     get "/accounts/session/refresh", AccountController, :refresh_session
     put "/accounts/", AccountController, :update
+    put "/users/update", UserController, :update
   end
 end
