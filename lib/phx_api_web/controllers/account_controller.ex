@@ -5,7 +5,7 @@ defmodule PhxApiWeb.AccountController do
   alias PhxApi.{Accounts, Accounts.Account, Users, Users.User}
 
   import PhxApiWeb.Auth.AuthorizedPlug
-  
+
   plug :is_authorized when action in [:update, :delete]
 
   action_fallback PhxApiWeb.FallbackController
@@ -63,11 +63,13 @@ defmodule PhxApiWeb.AccountController do
     render(conn, :show, account: account, user: account.user)
   end
 
-  def update(conn, %{"account" => account_params}) do
-    account = Accounts.get_account!(account_params["id"])
-
-    with {:ok, %Account{} = account} <- Accounts.update_account(account, account_params) do
-      render(conn, :show, account: account)
+  def update(conn, %{"current_password" => current_password, "account" => account_params}) do
+    case Guardian.validate_password(current_password, conn.assigns.account.hash_password) do
+      true ->
+        {:ok, account} = Accounts.update_account(conn.assigns.account, account_params)
+        render(conn, :show, account: account, user: account.user)
+      false ->
+        raise ErrorResponse.Unauthorized, message: "Wrong password."
     end
   end
 
